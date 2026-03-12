@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: luci-gene-dashboard
+    runtime: node
+    plan: starter
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/patients
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: luci-gene-db
+          property: connectionString
+      - key: NCBI_EMAIL
+        sync: false   # Set this in Render dashboard
+      - key: NCBI_API_KEY
+        sync: false   # Optional — get free key at ncbi.nlm.nih.gov/account
+
+databases:
+  - name: luci-gene-db
+    databaseName: luci_gene
+    plan: starter

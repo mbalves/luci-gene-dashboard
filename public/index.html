@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Luci Gene Dashboard</title>
+  <link rel="stylesheet" href="/assets/css/styles.css" />
+</head>
+<body>
+
+<!-- ── CABEÇALHO ──────────────────────────────────────────────────────────── -->
+<header class="header">
+  <div class="header-brand" onclick="navigate('patients')">
+    <svg class="header-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M9 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V9l-6-6z"/>
+      <path d="M9 3v6h6"/>
+      <line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/>
+    </svg>
+    <span class="header-title">Luci Gene Dashboard</span>
+  </div>
+  <nav class="header-nav">
+    <button class="nav-btn" id="nav-patients" onclick="navigate('patients')">Pacientes</button>
+    <button class="nav-btn" id="nav-search" onclick="navigate('search')">Busca de Genes</button>
+  </nav>
+</header>
+
+<!-- ── CONTEÚDO PRINCIPAL ─────────────────────────────────────────────────── -->
+<main id="app">
+
+  <!-- ── VISÃO: LISTA DE PACIENTES ─────────────────────────────────────────── -->
+  <section id="view-patients" class="view">
+    <div class="view-header">
+      <div>
+        <h1 class="view-title">Pacientes</h1>
+        <p class="view-sub" id="patient-count">Carregando…</p>
+      </div>
+      <button class="btn btn-primary" onclick="openPatientModal()">+ Novo Paciente</button>
+    </div>
+
+    <div class="search-bar-wrap">
+      <input type="search" id="patient-search" class="input search-input" placeholder="Buscar pacientes por nome ou e-mail…" oninput="filterPatients(this.value)" />
+    </div>
+
+    <div id="patients-grid" class="patients-grid">
+      <div class="skeleton-list">
+        <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── VISÃO: DETALHE DO PACIENTE ────────────────────────────────────────── -->
+  <section id="view-patient" class="view" style="display:none">
+    <div class="view-header">
+      <button class="btn btn-ghost back-btn" onclick="navigate('patients')">← Voltar</button>
+      <div class="patient-header-actions">
+        <button class="btn btn-secondary" onclick="openEditModal()">Editar</button>
+        <button class="btn btn-danger"    onclick="deleteCurrentPatient()">Excluir</button>
+      </div>
+    </div>
+
+    <!-- Cartão do paciente -->
+    <div class="patient-card" id="patient-card"></div>
+
+    <!-- Upload de arquivo -->
+    <div class="section-block">
+      <div class="section-header">
+        <h2 class="section-title">Arquivos de DNA</h2>
+        <label class="btn btn-primary" for="file-input">+ Enviar Arquivo DNA</label>
+        <input type="file" id="file-input" accept=".csv,.txt" style="display:none" onchange="uploadFile(this)" />
+      </div>
+      <p class="section-hint">Formatos aceitos: 23andMe (.txt/.csv) e Tellmegen (.csv)</p>
+      <div id="files-list" class="files-list"></div>
+    </div>
+
+    <!-- Busca de genes do paciente -->
+    <div class="section-block">
+      <h2 class="section-title">Busca de Genes</h2>
+      <p class="section-hint">Busque por código RS (rs12345), nome do gene (BRCA1) ou posição (17:41276113)</p>
+      <div class="gene-search-bar">
+        <input type="search" id="gene-query" class="input gene-input" placeholder="rs12345  •  BRCA1  •  17:41276113"
+               onkeydown="if(event.key==='Enter') searchGenes()" />
+        <button class="btn btn-primary" onclick="searchGenes()">Buscar</button>
+        <button class="btn btn-secondary" onclick="loadAllGenes()" title="Ver todos os SNPs">Ver Todos</button>
+      </div>
+      <div id="gene-results" class="gene-results-wrap"></div>
+    </div>
+  </section>
+
+  <!-- ── VISÃO: BUSCA GLOBAL DE GENES ──────────────────────────────────────── -->
+  <section id="view-search" class="view" style="display:none">
+    <div class="view-header">
+      <div>
+        <h1 class="view-title">Busca na Referência Genética</h1>
+        <p class="view-sub">Pesquise no banco de dados de referência enriquecido pelo NCBI</p>
+      </div>
+    </div>
+    <div class="gene-search-bar">
+      <input type="search" id="global-query" class="input gene-input" placeholder="rs12345  •  BRCA1  •  17:41276113"
+             onkeydown="if(event.key==='Enter') globalSearch()" />
+      <button class="btn btn-primary" onclick="globalSearch()">Buscar</button>
+    </div>
+    <div id="global-results" class="gene-results-wrap"></div>
+  </section>
+
+</main>
+
+<!-- ── MODAL: ADICIONAR / EDITAR PACIENTE ────────────────────────────────── -->
+<div id="modal-overlay" class="modal-overlay" onclick="closeModal(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="modal-title" class="modal-title">Novo Paciente</h2>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <form id="patient-form" onsubmit="submitPatient(event)">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="label">Nome *</label>
+          <input type="text" name="first_name" class="input" required />
+        </div>
+        <div class="form-group">
+          <label class="label">Sobrenome *</label>
+          <input type="text" name="last_name" class="input" required />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="label">Data de Nascimento</label>
+          <input type="date" name="date_of_birth" class="input" />
+        </div>
+        <div class="form-group">
+          <label class="label">Sexo</label>
+          <select name="sex" class="input">
+            <option value="">— selecione —</option>
+            <option value="male">Masculino</option>
+            <option value="female">Feminino</option>
+            <option value="other">Outro</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="label">E-mail</label>
+          <input type="email" name="email" class="input" />
+        </div>
+        <div class="form-group">
+          <label class="label">Telefone</label>
+          <input type="tel" name="phone" class="input" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="label">Observações Clínicas</label>
+        <textarea name="notes" class="input textarea" rows="3"></textarea>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+        <button type="submit" class="btn btn-primary" id="modal-submit">Salvar Paciente</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ── PAINEL LATERAL: DETALHE DO SNP ────────────────────────────────────── -->
+<div id="drawer-overlay" class="drawer-overlay" onclick="closeDrawer()">
+  <div class="drawer" onclick="event.stopPropagation()">
+    <div class="drawer-header">
+      <h3 id="drawer-rsid" class="drawer-title">Detalhe do RS</h3>
+      <button class="modal-close" onclick="closeDrawer()">✕</button>
+    </div>
+    <div id="drawer-content" class="drawer-content">
+      <div class="spinner"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── NOTIFICAÇÃO ────────────────────────────────────────────────────────── -->
+<div id="toast" class="toast" aria-live="polite"></div>
+
+<script src="/assets/js/app.js"></script>
+</body>
+</html>

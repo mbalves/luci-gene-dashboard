@@ -1,0 +1,408 @@
+/* ── Reset & Variables ───────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:        #0d1117;
+  --surface:   #161b22;
+  --surface2:  #1c2333;
+  --border:    #30363d;
+  --border2:   #21262d;
+  --text:      #e6edf3;
+  --text-sub:  #8b949e;
+  --accent:    #1f6feb;
+  --accent-h:  #388bfd;
+  --success:   #3fb950;
+  --warning:   #d29922;
+  --danger:    #f85149;
+  --teal:      #39d353;
+  --purple:    #bc8cff;
+  --tag-bg:    #1f2937;
+  --radius:    8px;
+  --radius-lg: 14px;
+  --shadow:    0 4px 24px rgba(0,0,0,.4);
+  --font:      -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
+  --mono:      'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 14px;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* ── Header ─────────────────────────────────────────────────────────────── */
+.header {
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 24px;
+  height: 56px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(8px);
+}
+
+.header-brand {
+  display: flex; align-items: center; gap: 10px;
+  cursor: pointer;
+  text-decoration: none;
+}
+.header-icon { width: 22px; height: 22px; color: var(--accent-h); }
+.header-title {
+  font-size: 16px; font-weight: 700;
+  background: linear-gradient(90deg, #58a6ff, #39d353);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  letter-spacing: -.3px;
+}
+
+.header-nav { display: flex; gap: 4px; }
+.nav-btn {
+  background: transparent; border: none; color: var(--text-sub);
+  padding: 6px 14px; border-radius: var(--radius); cursor: pointer;
+  font-size: 13px; font-weight: 500; transition: all .15s;
+}
+.nav-btn:hover, .nav-btn.active { background: var(--surface2); color: var(--text); }
+
+/* ── Main ────────────────────────────────────────────────────────────────── */
+#app { max-width: 1200px; margin: 0 auto; padding: 32px 24px 80px; }
+
+/* ── Views ───────────────────────────────────────────────────────────────── */
+.view { animation: fadeIn .2s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+.view-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 28px; flex-wrap: wrap; gap: 12px;
+}
+.view-title { font-size: 24px; font-weight: 700; letter-spacing: -.4px; }
+.view-sub { color: var(--text-sub); font-size: 13px; margin-top: 2px; }
+
+/* ── Buttons ─────────────────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 16px; border-radius: var(--radius); border: 1px solid transparent;
+  font-size: 13px; font-weight: 500; cursor: pointer; transition: all .15s;
+  white-space: nowrap; text-decoration: none;
+}
+.btn-primary  { background: var(--accent);  border-color: var(--accent);  color: #fff; }
+.btn-primary:hover  { background: var(--accent-h); border-color: var(--accent-h); }
+.btn-secondary { background: var(--surface2); border-color: var(--border); color: var(--text); }
+.btn-secondary:hover { background: var(--border); }
+.btn-ghost  { background: transparent; border-color: transparent; color: var(--text-sub); }
+.btn-ghost:hover { color: var(--text); background: var(--surface2); }
+.btn-danger { background: transparent; border-color: var(--danger); color: var(--danger); }
+.btn-danger:hover { background: var(--danger); color: #fff; }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+
+/* ── Inputs ──────────────────────────────────────────────────────────────── */
+.input {
+  width: 100%; padding: 9px 12px;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius); color: var(--text); font-size: 14px;
+  font-family: var(--font); transition: border-color .15s;
+  outline: none;
+}
+.input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(31,111,235,.15); }
+.input::placeholder { color: var(--text-sub); }
+.textarea { resize: vertical; min-height: 70px; }
+
+select.input option { background: var(--surface2); }
+
+/* ── Search bar ──────────────────────────────────────────────────────────── */
+.search-bar-wrap { margin-bottom: 24px; }
+.search-input { max-width: 480px; }
+
+.gene-search-bar {
+  display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;
+}
+.gene-input { flex: 1; min-width: 200px; font-family: var(--mono); font-size: 13px; }
+
+/* ── Patient grid ────────────────────────────────────────────────────────── */
+.patients-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+.patient-tile {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 20px;
+  cursor: pointer; transition: all .18s;
+  position: relative; overflow: hidden;
+}
+.patient-tile::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(56,139,253,.04), transparent);
+  opacity: 0; transition: opacity .18s;
+}
+.patient-tile:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: var(--shadow); }
+.patient-tile:hover::after { opacity: 1; }
+
+.tile-avatar {
+  width: 44px; height: 44px; border-radius: 50%;
+  background: linear-gradient(135deg, #1f6feb, #39d353);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; font-weight: 700; color: #fff;
+  margin-bottom: 12px;
+}
+.tile-name { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+.tile-meta { color: var(--text-sub); font-size: 12px; line-height: 1.8; }
+.tile-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  margin-top: 12px; padding: 3px 10px;
+  border-radius: 20px; font-size: 11px; font-weight: 600;
+  background: rgba(63,185,80,.1); color: var(--success); border: 1px solid rgba(63,185,80,.2);
+}
+.tile-badge.no-files { background: rgba(139,148,158,.1); color: var(--text-sub); border-color: var(--border); }
+
+/* ── Patient card (detail view) ──────────────────────────────────────────── */
+.patient-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 28px;
+  display: flex; gap: 24px; flex-wrap: wrap;
+  margin-bottom: 28px;
+}
+.patient-card-avatar {
+  width: 72px; height: 72px; border-radius: 50%;
+  background: linear-gradient(135deg, #1f6feb, #39d353);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px; font-weight: 700; color: #fff;
+  flex-shrink: 0;
+}
+.patient-card-info { flex: 1; min-width: 200px; }
+.patient-card-name { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+.patient-card-details {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 8px 24px; margin-top: 12px;
+}
+.detail-item { display: flex; flex-direction: column; }
+.detail-label { font-size: 11px; color: var(--text-sub); text-transform: uppercase; letter-spacing: .5px; }
+.detail-value { font-size: 14px; font-weight: 500; }
+
+/* ── Section blocks ──────────────────────────────────────────────────────── */
+.section-block {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 24px;
+  margin-bottom: 24px;
+}
+.section-header {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 8px; flex-wrap: wrap;
+}
+.section-title { font-size: 17px; font-weight: 600; }
+.section-hint  { color: var(--text-sub); font-size: 12px; margin-bottom: 16px; }
+
+/* ── Files list ──────────────────────────────────────────────────────────── */
+.files-list { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; }
+
+.file-row {
+  display: flex; align-items: center; gap: 14px;
+  background: var(--surface2); border: 1px solid var(--border2);
+  border-radius: var(--radius); padding: 12px 16px;
+}
+.file-icon { font-size: 22px; flex-shrink: 0; }
+.file-info { flex: 1; min-width: 0; }
+.file-name { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.file-meta { font-size: 11px; color: var(--text-sub); margin-top: 2px; }
+.file-status {
+  padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; flex-shrink: 0;
+}
+.file-status.ready      { background: rgba(63,185,80,.1); color: var(--success); }
+.file-status.processing { background: rgba(210,153,34,.1); color: var(--warning); }
+.file-status.error      { background: rgba(248,81,73,.1);  color: var(--danger); }
+
+/* ── Gene results table ──────────────────────────────────────────────────── */
+.gene-results-wrap { overflow-x: auto; }
+
+.gene-table {
+  width: 100%; border-collapse: collapse;
+  font-size: 13px; min-width: 640px;
+}
+.gene-table th {
+  text-align: left; padding: 10px 14px;
+  background: var(--surface2); color: var(--text-sub);
+  font-size: 11px; text-transform: uppercase; letter-spacing: .5px;
+  border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; z-index: 1;
+}
+.gene-table td {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border2);
+  vertical-align: middle;
+}
+.gene-table tbody tr:hover { background: var(--surface2); cursor: pointer; }
+.gene-table tbody tr:last-child td { border-bottom: none; }
+
+.rsid-cell {
+  font-family: var(--mono); font-size: 12px; color: var(--accent-h);
+  text-decoration: underline; text-underline-offset: 3px;
+}
+.genotype-badge {
+  font-family: var(--mono); font-size: 12px; font-weight: 700;
+  padding: 2px 8px; border-radius: 4px;
+  background: var(--tag-bg); border: 1px solid var(--border);
+}
+.clinsig { padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+.clinsig.benign   { background: rgba(63,185,80,.1); color: var(--success); }
+.clinsig.pathogenic { background: rgba(248,81,73,.1); color: var(--danger); }
+.clinsig.uncertain { background: rgba(210,153,34,.1); color: var(--warning); }
+.clinsig.other    { background: var(--tag-bg); color: var(--text-sub); }
+
+.gene-name-cell { font-weight: 600; color: var(--purple); }
+.chrom-cell { font-family: var(--mono); font-size: 12px; }
+.pos-cell   { font-family: var(--mono); font-size: 12px; color: var(--text-sub); }
+
+.no-results {
+  text-align: center; padding: 48px 24px; color: var(--text-sub);
+}
+.no-results .no-icon { font-size: 40px; margin-bottom: 12px; }
+.no-results p { font-size: 14px; }
+
+/* Pagination row */
+.pagination { display: flex; align-items: center; gap: 10px; padding: 16px 0; justify-content: center; }
+.page-info { color: var(--text-sub); font-size: 12px; }
+
+/* ── Modal ───────────────────────────────────────────────────────────────── */
+.modal-overlay {
+  display: none; position: fixed; inset: 0; z-index: 200;
+  background: rgba(0,0,0,.65); backdrop-filter: blur(4px);
+  align-items: center; justify-content: center; padding: 20px;
+}
+.modal-overlay.open { display: flex; }
+
+.modal {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); width: 100%; max-width: 560px;
+  box-shadow: var(--shadow); animation: modalIn .2s ease;
+}
+@keyframes modalIn { from { opacity: 0; transform: scale(.95); } to { opacity: 1; transform: scale(1); } }
+
+.modal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 24px 0;
+}
+.modal-title { font-size: 18px; font-weight: 700; }
+.modal-close {
+  background: none; border: none; color: var(--text-sub); font-size: 18px;
+  cursor: pointer; padding: 4px; border-radius: 4px; transition: color .15s;
+}
+.modal-close:hover { color: var(--text); }
+
+form#patient-form { padding: 20px 24px 24px; }
+
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+@media (max-width: 480px) { .form-row { grid-template-columns: 1fr; } }
+
+.form-group { display: flex; flex-direction: column; gap: 5px; margin-bottom: 14px; }
+.label { font-size: 12px; font-weight: 600; color: var(--text-sub); text-transform: uppercase; letter-spacing: .4px; }
+
+.modal-footer {
+  display: flex; gap: 10px; justify-content: flex-end;
+  padding-top: 8px; border-top: 1px solid var(--border); margin-top: 8px;
+}
+
+/* ── Drawer (SNP detail) ─────────────────────────────────────────────────── */
+.drawer-overlay {
+  display: none; position: fixed; inset: 0; z-index: 200;
+  background: rgba(0,0,0,.5);
+}
+.drawer-overlay.open { display: block; }
+
+.drawer {
+  position: fixed; right: 0; top: 0; bottom: 0; z-index: 201;
+  width: min(420px, 92vw);
+  background: var(--surface); border-left: 1px solid var(--border);
+  box-shadow: -8px 0 40px rgba(0,0,0,.4);
+  display: flex; flex-direction: column;
+  animation: slideIn .22s ease;
+}
+@keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+
+.drawer-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 24px; border-bottom: 1px solid var(--border); flex-shrink: 0;
+}
+.drawer-title { font-size: 17px; font-weight: 700; font-family: var(--mono); color: var(--accent-h); }
+
+.drawer-content { padding: 24px; overflow-y: auto; flex: 1; }
+
+.detail-section { margin-bottom: 20px; }
+.detail-section-title {
+  font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .8px; color: var(--text-sub); margin-bottom: 10px;
+}
+.detail-row { display: flex; flex-direction: column; gap: 2px; margin-bottom: 12px; }
+.detail-key { font-size: 11px; color: var(--text-sub); text-transform: uppercase; letter-spacing: .4px; }
+.detail-val { font-size: 14px; font-weight: 500; word-break: break-word; }
+.detail-val.mono { font-family: var(--mono); font-size: 13px; }
+
+/* ── Toast ───────────────────────────────────────────────────────────────── */
+.toast {
+  position: fixed; bottom: 24px; right: 24px; z-index: 500;
+  padding: 12px 20px; border-radius: var(--radius); font-size: 13px; font-weight: 500;
+  background: var(--surface2); border: 1px solid var(--border);
+  box-shadow: var(--shadow); color: var(--text);
+  opacity: 0; transform: translateY(10px); pointer-events: none;
+  transition: all .22s ease; max-width: 360px;
+}
+.toast.show { opacity: 1; transform: translateY(0); }
+.toast.success { border-color: var(--success); color: var(--success); }
+.toast.error   { border-color: var(--danger);  color: var(--danger); }
+
+/* ── Loading states ──────────────────────────────────────────────────────── */
+.spinner {
+  width: 28px; height: 28px; margin: 40px auto; display: block;
+  border: 3px solid var(--border); border-top-color: var(--accent);
+  border-radius: 50%; animation: spin .7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.skeleton { height: 90px; background: var(--surface); border-radius: var(--radius-lg); animation: pulse 1.5s ease infinite; }
+.skeleton-list { display: flex; flex-direction: column; gap: 12px; }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .4; } }
+
+/* ── Banner de resultado NCBI ────────────────────────────────────────────── */
+.gene-banner {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 16px; border-radius: var(--radius);
+  font-size: 13px; margin-bottom: 14px; border: 1px solid;
+}
+.gene-banner.info {
+  background: rgba(31,111,235,.08); border-color: rgba(31,111,235,.3); color: #58a6ff;
+}
+.gene-banner.warn {
+  background: rgba(210,153,34,.08); border-color: rgba(210,153,34,.3); color: var(--warning);
+}
+
+/* ── Upload progress indicator ───────────────────────────────────────────── */
+.upload-progress {
+  background: var(--surface2); border: 1px dashed var(--accent);
+  border-radius: var(--radius); padding: 16px; color: var(--text-sub);
+  font-size: 13px; display: flex; align-items: center; gap: 12px;
+}
+.upload-progress .spinner { width: 18px; height: 18px; margin: 0; flex-shrink: 0; }
+
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+@media (max-width: 600px) {
+  #app { padding: 20px 14px 60px; }
+  .patient-card { flex-direction: column; }
+  .header { padding: 0 14px; }
+  .gene-search-bar .btn { width: 100%; justify-content: center; }
+}
+
+/* ── Back button ─────────────────────────────────────────────────────────── */
+.back-btn { margin-left: -8px; }
+.patient-header-actions { display: flex; gap: 8px; }
+
+/* ── Empty state ─────────────────────────────────────────────────────────── */
+.empty-state {
+  text-align: center; padding: 64px 24px;
+  color: var(--text-sub);
+}
+.empty-state .empty-icon { font-size: 48px; margin-bottom: 16px; }
+.empty-state h3 { font-size: 18px; font-weight: 600; color: var(--text); margin-bottom: 8px; }
+.empty-state p { font-size: 14px; margin-bottom: 24px; }

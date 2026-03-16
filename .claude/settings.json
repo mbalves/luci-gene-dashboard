@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pip3 install pdfminer.six)",
+      "Bash(python3 -c \" from pdfminer.high_level import extract_text text = extract_text\\(''/Users/marcelo/Downloads/Novo Painel Nutrigenético Ciera.pdf''\\) print\\(text[:8000]\\) \")",
+      "Bash(python3 -c \":*)"
+    ]
+  }
+}

@@ -44,6 +44,11 @@ function navigate(view, patientId) {
     loadPatients();
   } else if (view === 'patient' && patientId) {
     document.getElementById('view-patient').style.display = '';
+    // reset report panel
+    document.getElementById('report-section').style.display = 'none';
+    document.getElementById('report-iframe').src = 'about:blank';
+    const bl = document.getElementById('btn-laudo');
+    if (bl) bl.textContent = 'Laudo Nutrigenético';
     loadPatientDetail(patientId);
   } else if (view === 'search') {
     document.getElementById('view-search').style.display = '';
@@ -106,6 +111,7 @@ function renderPatientGrid() {
         <span class="tile-badge ${hasFiles ? '' : 'no-files'}">
           ${hasFiles ? `🧬 ${p.file_count} arquivo${p.file_count !== 1 ? 's' : ''}` : 'Sem arquivos DNA'}
         </span>
+        ${hasFiles ? `<a class="tile-report-btn" href="/api/report/${p.id}" target="_blank" onclick="event.stopPropagation()" title="Abrir laudo nutrigenético">📋 Laudo</a>` : ''}
       </div>`;
   }).join('');
 }
@@ -532,6 +538,28 @@ async function submitPatient(ev) {
     showToast(err.message, 'error');
   } finally {
     submit.disabled = false;
+  }
+}
+
+function toggleReport() {
+  if (!state.currentPatient) return;
+  const section = document.getElementById('report-section');
+  const iframe  = document.getElementById('report-iframe');
+  const extLink = document.getElementById('report-external-link');
+  const btn     = document.getElementById('btn-laudo');
+  const url     = `/api/report/${state.currentPatient.id}`;
+
+  const isOpen = section.style.display !== 'none';
+  if (isOpen) {
+    section.style.display = 'none';
+    iframe.src = 'about:blank';
+    btn.textContent = 'Laudo Nutrigenético';
+  } else {
+    extLink.href = url;
+    if (iframe.src !== url) iframe.src = url;
+    section.style.display = '';
+    section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    btn.textContent = '✕ Fechar Laudo';
   }
 }
 

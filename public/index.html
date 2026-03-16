@@ -54,6 +54,7 @@
       <button class="btn btn-ghost back-btn" onclick="navigate('patients')">← Voltar</button>
       <div class="patient-header-actions">
         <button class="btn btn-secondary" onclick="openEditModal()">Editar</button>
+        <button class="btn btn-primary"   id="btn-laudo" onclick="toggleReport()">Laudo Nutrigenético</button>
         <button class="btn btn-danger"    onclick="deleteCurrentPatient()">Excluir</button>
       </div>
     </div>
@@ -70,6 +71,21 @@
       </div>
       <p class="section-hint">Formatos aceitos: 23andMe (.txt/.csv) e Tellmegen (.csv)</p>
       <div id="files-list" class="files-list"></div>
+    </div>
+
+    <!-- Laudo Nutrigenético embarcado -->
+    <div id="report-section" class="section-block" style="display:none;padding:0;overflow:hidden">
+      <div class="section-header" style="padding:16px 20px 0">
+        <h2 class="section-title">Laudo Nutrigenético</h2>
+        <div style="display:flex;gap:8px">
+          <a id="report-external-link" href="#" target="_blank" class="btn btn-ghost" style="font-size:12px">↗ Abrir em nova aba</a>
+          <button class="btn btn-ghost" onclick="toggleReport()" style="font-size:12px">✕ Fechar</button>
+        </div>
+      </div>
+      <iframe id="report-iframe"
+              src="about:blank"
+              style="width:100%;height:82vh;border:none;display:block;margin-top:12px"
+              title="Laudo Nutrigenético"></iframe>
     </div>
 
     <!-- Busca de genes do paciente -->

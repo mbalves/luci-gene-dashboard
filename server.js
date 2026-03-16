@@ -18,6 +18,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/api/patients', require('./src/routes/patients'));
 app.use('/api/files',    require('./src/routes/files'));
 app.use('/api/genes',    require('./src/routes/genes'));
+app.use('/api/report',   require('./src/routes/report'));
 
 // SPA fallback
 app.get('*', (req, res) => {

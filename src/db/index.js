@@ -1,8 +1,16 @@
 const { Pool } = require('pg');
 
+function sslOption() {
+  // CapRover's internal Postgres has no SSL. Render's does.
+  // DATABASE_SSL overrides the production default either way.
+  if (process.env.DATABASE_SSL === 'false') return false;
+  if (process.env.DATABASE_SSL === 'true') return { rejectUnauthorized: false };
+  return process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false;
+}
+
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+  ssl: sslOption(),
   max: 20,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 5000,

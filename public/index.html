@@ -55,6 +55,8 @@
       <div class="patient-header-actions">
         <button class="btn btn-secondary" onclick="openEditModal()">Editar</button>
         <button class="btn btn-primary"   id="btn-laudo" onclick="toggleReport()">Laudo Nutrigenético</button>
+        <button class="btn btn-secondary" id="btn-mapa-metabolico" onclick="openPathwayMap()"
+                style="display:none">Mapa Metabólico</button>
         <button class="btn btn-danger"    onclick="deleteCurrentPatient()">Excluir</button>
       </div>
     </div>
@@ -185,6 +187,39 @@
     <div id="drawer-content" class="drawer-content">
       <div class="spinner"></div>
     </div>
+  </div>
+</div>
+
+<!-- ── OVERLAY: MAPA METABÓLICO ──────────────────────────────────────────── -->
+<div id="pathway-overlay" class="pathway-overlay" onclick="closePathwayMap(event)">
+  <div class="pathway-panel" onclick="event.stopPropagation()">
+
+    <div class="pathway-toolbar">
+      <span class="pathway-toolbar-title">Mapa Metabólico</span>
+      <div class="pathway-toolbar-actions">
+        <button class="btn btn-secondary pathway-zoom-btn" onclick="pathwayZoom(-0.15)" title="Reduzir">−</button>
+        <button class="btn btn-secondary pathway-zoom-btn" onclick="pathwayZoom(+0.15)" title="Ampliar">+</button>
+        <button class="btn btn-secondary" onclick="window.print()" title="Imprimir">🖨 Imprimir</button>
+        <button class="btn btn-ghost"     onclick="closePathwayMap()" title="Fechar">✕</button>
+      </div>
+    </div>
+
+    <div class="pathway-legend">
+      <span class="legend-item"><span class="legend-dot legend-green"></span>Normal homozigoto</span>
+      <span class="legend-item"><span class="legend-dot legend-yellow"></span>Heterozigoto</span>
+      <span class="legend-item"><span class="legend-dot legend-red"></span>Risco homozigoto</span>
+      <span class="legend-item"><span class="legend-dot legend-white"></span>Não encontrado</span>
+    </div>
+
+    <div class="pathway-scroll-area">
+      <div id="pathway-map-container" class="pathway-map-container">
+        <div id="pathway-svg-host"></div>
+        <div id="pathway-spinner" class="pathway-loading">
+          <div class="spinner"></div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 

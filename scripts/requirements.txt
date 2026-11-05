@@ -1,0 +1,13 @@
+# Python dependencies for pdf-to-svg-mapper.py
+# Install with: pip install -r scripts/requirements.txt
+
+# PDF text extraction with coordinate data
+PyMuPDF>=1.23.0
+
+# Standard library modules used (no install needed):
+#   xml.etree.ElementTree  — SVG parsing
+#   json                   — output serialization
+#   re                     — RSID and color pattern matching
+#   math                   — distance calculations
+#   collections            — Counter, defaultdict
+#   os, sys, argparse      — CLI and file I/O

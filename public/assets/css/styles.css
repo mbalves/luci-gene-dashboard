@@ -417,3 +417,97 @@ form#patient-form { padding: 20px 24px 24px; }
 .empty-state .empty-icon { font-size: 48px; margin-bottom: 16px; }
 .empty-state h3 { font-size: 18px; font-weight: 600; color: var(--text); margin-bottom: 8px; }
 .empty-state p { font-size: 14px; margin-bottom: 24px; }
+
+/* ── Pathway Map Overlay ─────────────────────────────────────────────────── */
+.pathway-overlay {
+  display: none;
+  position: fixed; inset: 0; z-index: 300;
+  background: rgba(0,0,0,.75);
+  backdrop-filter: blur(4px);
+}
+.pathway-overlay.open { display: flex; align-items: flex-start; justify-content: center; }
+
+.pathway-panel {
+  display: flex; flex-direction: column;
+  width: 96vw; height: 96vh;
+  margin-top: 2vh;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); overflow: hidden;
+  box-shadow: var(--shadow);
+  animation: modalIn .2s ease;
+}
+
+.pathway-toolbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 20px; border-bottom: 1px solid var(--border);
+  flex-shrink: 0; gap: 12px;
+}
+.pathway-toolbar-title {
+  font-size: 16px; font-weight: 700; letter-spacing: -.3px;
+}
+.pathway-toolbar-actions { display: flex; gap: 8px; align-items: center; }
+.pathway-zoom-btn { padding: 6px 12px; font-size: 16px; font-weight: 700; line-height: 1; }
+
+.pathway-legend {
+  display: flex; flex-wrap: wrap; gap: 8px 20px;
+  padding: 10px 20px; border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.legend-item {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 12px; color: var(--text-sub);
+}
+.legend-dot {
+  width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0;
+}
+.legend-green  { background: #00802f; }
+.legend-yellow { background: #ffff00; }
+.legend-red    { background: #cc0000; }
+.legend-white  { background: #ffffff; border: 1px solid #ccc; }
+
+.pathway-scroll-area {
+  flex: 1; overflow: auto;
+  display: flex; align-items: flex-start; justify-content: flex-start;
+  padding: 16px;
+  scroll-behavior: smooth;
+}
+.pathway-map-container {
+  position: relative; flex-shrink: 0;
+  transform-origin: top left;
+  min-width: fit-content;
+  min-height: fit-content;
+}
+.pathway-genes-layer {
+  position: absolute; inset: 0; pointer-events: none;
+}
+.pathway-loading {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(13,17,23,.6);
+}
+
+/* ── Pathway map image container ─────────────────────────────────────────── */
+#pathway-svg-host {
+  display: flex; align-items: flex-start; justify-content: flex-start;
+  position: relative;
+}
+#pathway-svg-host img {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: none;
+  user-select: none;
+}
+
+/* ── Print: pathway map ──────────────────────────────────────────────────── */
+@media print {
+  body > *:not(#pathway-overlay) { display: none !important; }
+  .pathway-overlay { display: block !important; position: static !important; background: none !important; }
+  .pathway-panel   { width: 100% !important; height: auto !important; margin: 0 !important;
+                     box-shadow: none !important; border: none !important; }
+  .pathway-toolbar-actions { display: none !important; }
+  .pathway-scroll-area { overflow: visible !important; padding: 0 !important; }
+  .pathway-map-container { transform: none !important; }
+  .gene-box { opacity: 1 !important; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+  .pathway-loading { display: none !important; }
+}

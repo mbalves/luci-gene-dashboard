@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Metabolic Pathway Gene Calibrator</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0d1117;
+      color: #e6edf3;
+      padding: 20px;
+    }
+    .container { max-width: 1400px; margin: 0 auto; }
+    h1 { margin-bottom: 20px; font-size: 24px; }
+    .info {
+      background: #161b22; padding: 12px 16px; border-radius: 8px;
+      border-left: 3px solid #1f6feb; margin-bottom: 20px; font-size: 13px;
+    }
+    .layout { display: grid; grid-template-columns: 1fr 300px; gap: 20px; }
+    .map-area {
+      position: relative;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #0d1117;
+    }
+    #pathwayImg {
+      display: block;
+      width: 100%;
+      height: auto;
+      cursor: crosshair;
+    }
+    .marker {
+      position: absolute;
+      width: 20px; height: 20px;
+      border: 2px solid #f97316;
+      border-radius: 50%;
+      background: transparent;
+      pointer-events: none;
+      transform: translate(-10px, -10px);
+    }
+    .marker-label {
+      position: absolute;
+      top: -20px; left: 0;
+      background: #f97316;
+      color: #000;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-size: 11px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .sidebar {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      padding: 16px;
+    }
+    .sidebar h3 {
+      font-size: 14px;
+      margin-bottom: 12px;
+      color: #58a6ff;
+    }
+    .gene-input {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 16px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid #30363d;
+    }
+    .gene-input input {
+      padding: 6px 8px;
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 4px;
+      color: #e6edf3;
+      font-size: 12px;
+      font-family: monospace;
+    }
+    .gene-input input::placeholder { color: #6b7280; }
+    .btn {
+      padding: 8px 12px;
+      border: 1px solid;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all .15s;
+    }
+    .btn-primary {
+      background: #1f6feb;
+      border-color: #1f6feb;
+      color: #fff;
+    }
+    .btn-primary:hover { background: #388bfd; border-color: #388bfd; }
+    .btn-secondary {
+      background: transparent;
+      border-color: #30363d;
+      color: #8b949e;
+      width: 100%;
+      margin-bottom: 8px;
+    }
+    .btn-secondary:hover { background: #161b22; border-color: #58a6ff; color: #58a6ff; }
+    .coords-display {
+      font-size: 11px;
+      color: #8b949e;
+      padding: 8px;
+      background: #0d1117;
+      border-radius: 4px;
+      font-family: monospace;
+      margin-bottom: 8px;
+    }
+    .gene-list {
+      max-height: 400px;
+      overflow-y: auto;
+      font-size: 11px;
+    }
+    .gene-item {
+      padding: 6px;
+      margin-bottom: 4px;
+      background: #0d1117;
+      border-radius: 3px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .gene-item button {
+      padding: 2px 6px;
+      font-size: 10px;
+      background: #ef4444;
+      border: none;
+      color: #fff;
+      border-radius: 2px;
+      cursor: pointer;
+    }
+    .export-box {
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 4px;
+      padding: 8px;
+      margin-top: 12px;
+    }
+    .export-box textarea {
+      width: 100%;
+      height: 200px;
+      padding: 8px;
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 3px;
+      color: #e6edf3;
+      font-size: 10px;
+      font-family: monospace;
+      resize: none;
+      margin-bottom: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🧬 Metabolic Pathway Gene Calibrator</h1>
+    <div class="info">
+      <strong>Instructions:</strong> Click on each gene box in the map image below. Enter the gene name (e.g., MTHFR, CBS, APOE).
+      Click "Add Gene" to save. Export the final list as pathwayMap.js code.
+    </div>
+
+    <div class="layout">
+      <div class="map-area">
+        <img id="pathwayImg" src="/assets/images/metabolic-pathways-bw.png" alt="Metabolic Pathways" />
+        <div id="markers"></div>
+      </div>
+
+      <div class="sidebar">
+        <h3>📍 Add Gene</h3>
+        <div class="gene-input">
+          <input type="text" id="geneName" placeholder="e.g., MTHFR" />
+          <input type="text" id="geneRSID" placeholder="e.g., rs1801133" />
+          <div class="coords-display">
+            Coords: <span id="coordsDisplay">Click image</span>
+          </div>
+          <button class="btn btn-primary" onclick="addGene()">Add Gene</button>
+        </div>
+
+        <h3>📋 Mapped Genes</h3>
+        <div class="gene-list" id="geneList"></div>
+
+        <h3>📤 Export</h3>
+        <button class="btn btn-secondary" onclick="generateCode()">Generate pathwayMap.js</button>
+        <div class="export-box">
+          <textarea id="exportCode" readonly></textarea>
+          <button class="btn btn-secondary" onclick="copyToClipboard()">Copy Code</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let lastClickCoords = { x: 0, y: 0 };
+    let genes = [];
+    const img = document.getElementById('pathwayImg');
+    const markersContainer = document.getElementById('markers');
+
+    // Capture click coordinates
+    img.addEventListener('click', (e) => {
+      const rect = img.getBoundingClientRect();
+      const imgCoords = {
+        x: (e.clientX - rect.left) / rect.width,
+        y: (e.clientY - rect.top) / rect.height
+      };
+
+      const displayCoords = {
+        x: Math.round(imgCoords.x * 100),
+        y: Math.round(imgCoords.y * 100)
+      };
+
+      lastClickCoords = { ...imgCoords, display: displayCoords };
+      document.getElementById('coordsDisplay').textContent =
+        `${displayCoords.x}% × ${displayCoords.y}%`;
+
+      // Show temporary marker
+      const marker = document.createElement('div');
+      marker.className = 'marker';
+      marker.style.left = (imgCoords.x * 100) + '%';
+      marker.style.top = (imgCoords.y * 100) + '%';
+      markersContainer.appendChild(marker);
+      setTimeout(() => marker.remove(), 800);
+    });
+
+    function addGene() {
+      const name = document.getElementById('geneName').value.trim().toUpperCase();
+      const rsid = document.getElementById('geneRSID').value.trim().toLowerCase();
+
+      if (!name || !rsid) {
+        alert('Please enter gene name and RSID');
+        return;
+      }
+
+      if (!rsid.startsWith('rs')) {
+        alert('RSID must start with "rs"');
+        return;
+      }
+
+      genes.push({
+        label: name,
+        rsid: rsid,
+        x: lastClickCoords.display.x,
+        y: lastClickCoords.display.y,
+        w: 6,  // Default width
+        h: 4   // Default height
+      });
+
+      // Add permanent marker
+      const marker = document.createElement('div');
+      marker.className = 'marker';
+      marker.style.left = (lastClickCoords.x * 100) + '%';
+      marker.style.top = (lastClickCoords.y * 100) + '%';
+      marker.innerHTML = `<div class="marker-label">${name}</div>`;
+      markersContainer.appendChild(marker);
+
+      renderGeneList();
+      document.getElementById('geneName').value = '';
+      document.getElementById('geneRSID').value = '';
+    }
+
+    function removeGene(index) {
+      genes.splice(index, 1);
+      renderGeneList();
+      // Redraw markers
+      markersContainer.innerHTML = '';
+      genes.forEach(g => {
+        const marker = document.createElement('div');
+        marker.className = 'marker';
+        marker.style.left = g.x + '%';
+        marker.style.top = g.y + '%';
+        marker.innerHTML = `<div class="marker-label">${g.label}</div>`;
+        markersContainer.appendChild(marker);
+      });
+    }
+
+    function renderGeneList() {
+      const list = document.getElementById('geneList');
+      list.innerHTML = genes.map((g, i) => `
+        <div class="gene-item">
+          <span>${g.label} (${g.x}%, ${g.y}%)</span>
+          <button onclick="removeGene(${i})">Delete</button>
+        </div>
+      `).join('');
+    }
+
+    function generateCode() {
+      const code = `'use strict';
+
+// Auto-generated by Calibrator
+const PATHWAY_MAP = [
+${genes.map((g, i) => `  { id: 'gene_${i}', label: '${g.label}', rsid: '${g.rsid}', riskAllele: '?', hetIsRisk: false, protectiveAllele: null, x: ${g.x}, y: ${g.y}, w: ${g.w}, h: ${g.h} }`).join(',\n')}
+];
+
+module.exports = { PATHWAY_MAP };`;
+      document.getElementById('exportCode').value = code;
+    }
+
+    function copyToClipboard() {
+      const textarea = document.getElementById('exportCode');
+      textarea.select();
+      document.execCommand('copy');
+      alert('Copied to clipboard!');
+    }
+
+    // Allow Enter key to add gene
+    document.getElementById('geneRSID').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') addGene();
+    });
+  </script>
+</body>
+</html>

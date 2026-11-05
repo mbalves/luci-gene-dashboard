@@ -19,6 +19,7 @@ app.use('/api/patients', require('./src/routes/patients'));
 app.use('/api/files',    require('./src/routes/files'));
 app.use('/api/genes',    require('./src/routes/genes'));
 app.use('/api/report',   require('./src/routes/report'));
+app.use('/api/pathways', require('./src/routes/pathways'));
 
 // SPA fallback
 app.get('*', (req, res) => {

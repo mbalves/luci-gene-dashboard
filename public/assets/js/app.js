@@ -8,6 +8,7 @@ const state = {
   geneLimit: 50,
   geneQuery: '',
   pollingIntervals: {},
+  pathwayZoomLevel: 1,
 };
 
 /* ── Helpers de API ──────────────────────────────────────────────────────── */
@@ -111,7 +112,9 @@ function renderPatientGrid() {
         <span class="tile-badge ${hasFiles ? '' : 'no-files'}">
           ${hasFiles ? `🧬 ${p.file_count} arquivo${p.file_count !== 1 ? 's' : ''}` : 'Sem arquivos DNA'}
         </span>
-        ${hasFiles ? `<a class="tile-report-btn" href="/api/report/${p.id}" target="_blank" onclick="event.stopPropagation()" title="Abrir laudo nutrigenético">📋 Laudo</a>` : ''}
+        <a class="tile-report-btn" href="/api/report/${p.id}" target="_blank"
+           data-pid="${p.id}" onclick="event.stopPropagation();markReportSeen(${p.id})"
+           title="Laudo nutrigenético">📋 ${laudoLabel(p.id)}</a>
       </div>`;
   }).join('');
 }
@@ -141,6 +144,12 @@ async function loadPatientDetail(id) {
       </div>`;
 
     renderFilesList(p.files || []);
+
+    // Show "Mapa Metabólico" button only when a ready DNA file exists
+    const hasReady = (p.files || []).some(f => f.status === 'ready');
+    const btnMapa = document.getElementById('btn-mapa-metabolico');
+    if (btnMapa) btnMapa.style.display = hasReady ? '' : 'none';
+
     document.getElementById('gene-results').innerHTML = '';
     document.getElementById('gene-query').value = '';
   } catch (err) {
@@ -541,6 +550,17 @@ async function submitPatient(ev) {
   }
 }
 
+function laudoLabel(patientId) {
+  return localStorage.getItem(`laudo_seen_${patientId}`) ? 'Ver Laudo' : 'Criar Laudo';
+}
+function markReportSeen(patientId) {
+  localStorage.setItem(`laudo_seen_${patientId}`, '1');
+  // update all visible tile buttons for this patient
+  document.querySelectorAll(`.tile-report-btn[data-pid="${patientId}"]`).forEach(a => {
+    a.textContent = '📋 Ver Laudo';
+  });
+}
+
 function toggleReport() {
   if (!state.currentPatient) return;
   const section = document.getElementById('report-section');
@@ -578,6 +598,7 @@ async function deleteCurrentPatient() {
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
     closeDrawer();
+    closePathwayMap();
     document.getElementById('modal-overlay').classList.remove('open');
   }
 });
@@ -597,3 +618,76 @@ function capitalize(str) {
 
 /* ── Inicialização ───────────────────────────────────────────────────────── */
 navigate('patients');
+
+/* ══ MAPA METABÓLICO ══════════════════════════════════════════════════════════ */
+
+async function openPathwayMap() {
+  if (!state.currentPatient) return;
+
+  const overlay = document.getElementById('pathway-overlay');
+  const spinner = document.getElementById('pathway-spinner');
+  const host = document.getElementById('pathway-svg-host');
+
+  // Reset zoom, show overlay
+  state.pathwayZoomLevel = 1;
+  _applyPathwayZoom();
+
+  host.innerHTML = '';
+  spinner.style.display = 'flex';
+  overlay.classList.add('open');
+
+  try {
+    // 1. Fetch colored metabolic pathway PNG from backend
+    const response = await fetch(`/api/pathways/${state.currentPatient.id}`);
+    if (!response.ok) throw new Error('Failed to load metabolic pathway');
+
+    const blob = await response.blob();
+    const imgUrl = URL.createObjectURL(blob);
+
+    // 2. Create image with loading state
+    const img = document.createElement('img');
+    img.alt = 'Metabolic Pathways - Personalized';
+    img.style.display = 'block';
+    img.style.maxWidth = 'none';
+    img.style.width = 'auto';
+    img.style.height = 'auto';
+    img.style.userSelect = 'none';
+
+    // Show image once loaded
+    img.onload = () => {
+      spinner.style.display = 'none';
+    };
+
+    img.onerror = () => {
+      spinner.style.display = 'none';
+      host.innerHTML = `<div style="padding:24px;color:var(--danger)">Failed to load image</div>`;
+    };
+
+    // Clear host and add image
+    host.innerHTML = '';
+    host.appendChild(img);
+    img.src = imgUrl;
+  } catch (err) {
+    spinner.style.display = 'none';
+    host.innerHTML = `<div style="padding:24px;color:var(--danger)">${esc(err.message)}</div>`;
+  }
+}
+
+function closePathwayMap(ev) {
+  // If called from the backdrop click, only close when clicking the backdrop itself
+  if (ev && ev.target !== document.getElementById('pathway-overlay')) return;
+  document.getElementById('pathway-overlay').classList.remove('open');
+}
+
+function pathwayZoom(delta) {
+  state.pathwayZoomLevel = Math.min(3, Math.max(0.3, state.pathwayZoomLevel + delta));
+  _applyPathwayZoom();
+}
+
+function _applyPathwayZoom() {
+  const container = document.getElementById('pathway-map-container');
+  if (container) {
+    container.style.transform = `scale(${state.pathwayZoomLevel})`;
+  }
+}
+
